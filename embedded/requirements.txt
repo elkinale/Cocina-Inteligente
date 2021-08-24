@@ -1,0 +1,16 @@
+click==8.0.1
+Flask==2.0.1
+Flask-SQLAlchemy==2.5.1
+Flask-WTF==0.15.1
+importlib-metadata==4.6.4
+itsdangerous==2.0.1
+Jinja2==3.0.1
+MarkupSafe==2.0.1
+mysqlclient==2.0.3
+psycopg2==2.9.1
+simplejson==3.17.4
+SQLAlchemy==1.4.23
+typing-extensions==3.10.0.0
+Werkzeug==2.0.1
+WTForms==2.3.3
+zipp==3.5.0

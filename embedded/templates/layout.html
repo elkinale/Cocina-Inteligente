@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Embedded -{%block title%}{%endblock%} </title>
+        <meta charset="utf-8">
+
+    </head>
+
+    <body>
+        <div class='container'>
+            <ul>
+                <li> <a href="{{url_for('home')}}">Home</a> </li>
+                <li> <a href="{{url_for('stats')}}">Stats</a> </li>
+                <li> <a href="{{url_for('images')}}">Images</a> </li>
+                <li> <a href="{{url_for('recepies')}}">Recepies</a> </li>
+		<li> <a href="{{url_for('get_lecturas')}}">Lecturas</a> </li>
+            </ul>
+            {%block content%}{%endblock%}
+        </div>
+    </body>
+
+</html>
