@@ -1,3 +1,4 @@
+from typing_extensions import Protocol
 from flask import Flask, render_template, url_for, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -13,7 +14,11 @@ app.config['SECRET_KEY']='xyz'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:paswd@localhost/classicmodels'
 
 # Capture video
-camera = cv2.VideoCapture(0)
+_protocol = 'http'
+_ip = ''
+_port = '81'
+_extra = 'stream'
+camera = cv2.VideoCapture(f'{_protocol}://{_ip}:{_port}/{_extra}')
 # The data base is created
 db = SQLAlchemy(app)
 

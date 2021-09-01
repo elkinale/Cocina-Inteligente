@@ -7,6 +7,9 @@ itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
 mysqlclient==2.0.3
+numpy==1.21.2
+opencv-python==4.5.3.56
+paho-mqtt==1.5.1
 psycopg2==2.9.1
 simplejson==3.17.4
 SQLAlchemy==1.4.23
