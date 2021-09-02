@@ -1,4 +1,3 @@
-from typing_extensions import Protocol
 from flask import Flask, render_template, url_for, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -11,21 +10,21 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY']='xyz'
 # At the end need the name of the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:paswd@localhost/classicmodels'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:paswd@localhost/embedded'
 
 # Capture video
-_protocol = 'http'
-_ip = ''
-_port = '81'
-_extra = 'stream'
-camera = cv2.VideoCapture(f'{_protocol}://{_ip}:{_port}/{_extra}')
+PROTOCOL = 'http'
+IP = ''
+PORT = '81'
+EXTRA = 'stream'
+camera = cv2.VideoCapture(f'{PROTOCOL}://{IP}:{PORT}/{EXTRA}')
 # The data base is created
 db = SQLAlchemy(app)
 
 #A class is created asociated to a databseS, the variables are the columns of the table
 class Recipes(db.Model):   
 # The name of the table is placed
-    __tablename__ = 'employees'
+    __tablename__ = 'recepies'
     employeeNumber = db.Column(db.Integer, primary_key=True)
     lastName = db.Column(db.String(50))
     firstName = db.Column(db.String(50))
@@ -39,10 +38,10 @@ class Measure(db.Model):
     
     __tablename__ = 'measures'
     id = db.Column(db.Integer, primary_key=True)
-    temperature = db.Column(db.Float)
-    humidity = db.Column(db.Float)
-    postDate = db.Column(db.DateTime)
-    device = db.Column(db.String(30))   
+    temperature = db.Column(db.Float, nullable=True)
+    humidity = db.Column(db.Float, nullable=True)
+    device = db.Column(db.String(30), nullable=False)   
+    postDate = db.Column(db.DateTime, nullable=True)
 
 def  gen_frames():
     while True:
@@ -69,12 +68,15 @@ def home():
 def stats():
         
     if request.method == 'POST':
-        init = request.form['init_time']
-        finish = request.form['finish_time']
-        init_d = f"{request.form['init_date']} {init}:00"
-        finish_d = f"{request.form['finish_date']} {finish}:00"
+        init_t = request.form['init_time']
+        finish_t = request.form['finish_time']
+        init_d = f"{request.form['init_date']} {init_t}"
+        finish_d = f"{request.form['finish_date']} {finish_t}"
         
     else:
+        init = datetime.now() - timedelta(hours=1)
+        init_t = init.strftime('%H:%M')
+        finish_t = datetime.now().strftime ('%H:%M')
         init_d = datetime.now() - timedelta(hours=1)
         init_d = init_d.strftime('%Y-%m-%d %H:%M:%S')
         finish_d = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -103,7 +105,8 @@ def stats():
         time.append(str(measure.postDate)[-8:-2])             
     
     return render_template('stats.html', init_d=str(init_d)[:10], finish_d=str(finish_d)[:10], dates=dates, 
-                           time=time, temperature=temperature, humidity=humidity)
+                           time=time, temperature=temperature, humidity=humidity, 
+                           init_t = init_t, finish_t =finish_t)
 
 
 @app.route('/images/')
