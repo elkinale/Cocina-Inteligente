@@ -1,12 +1,16 @@
 from flask import Flask, render_template, url_for, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+#import detection_server
+import time
 import cv2
 
 from sqlalchemy.sql.expression import asc
 
 # The app is created
 app = Flask(__name__)
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY']='xyz'
 # At the end need the name of the database
@@ -14,25 +18,25 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:paswd@localhost/embedded'
 
 # Capture video
 PROTOCOL = 'http'
-IP = ''
-PORT = '81'
-EXTRA = 'stream'
-camera = cv2.VideoCapture(f'{PROTOCOL}://{IP}:{PORT}/{EXTRA}')
+IP = '190.158.0.169'
+EXTRA = 'cam-hi.jpg'
+
 # The data base is created
 db = SQLAlchemy(app)
 
 #A class is created asociated to a databseS, the variables are the columns of the table
 class Recipes(db.Model):   
-# The name of the table is placed
-    __tablename__ = 'recepies'
-    employeeNumber = db.Column(db.Integer, primary_key=True)
-    lastName = db.Column(db.String(50))
-    firstName = db.Column(db.String(50))
-    extension = db.Column(db.String(10))
-    email = db.Column(db.String(100),)
-    officeCode = db.Column(db.String(10))
-    reportsTo = db.Column(db.Integer)
-    jobTitle =db.Column(db.String(50))  
+    
+    __tablename__ = 'recipes'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(40), nullable=False)
+    producto = db.Column(db.String(20), nullable=False)
+    tipoPlato = db.Column(db.String(20), nullable=False)
+    categoria = db.Column(db.String(20), nullable=False)
+    tipoCoccion = db.Column(db.String(20))
+    ingredientes = db.Column(db.Text)
+    personas =db.Column(db.Integer)
+    link = db.Column(db.String(150))  
     
 class Measure(db.Model):
     
@@ -43,16 +47,21 @@ class Measure(db.Model):
     device = db.Column(db.String(30), nullable=False)   
     postDate = db.Column(db.DateTime, nullable=True)
 
-def  gen_frames():
+def  gen_frames(frame=None):
     while True:
+        camera = cv2.VideoCapture(f'{PROTOCOL}://{IP}/{EXTRA}')
         success, frame = camera.read()
         if not success:
             break
         else:
             ret, buffer = cv2.imencode('.jpg', frame)
+            #if not frame:
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
-                   b'Content-type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                b'Content-type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            # else:
+            #     return buffer
+        
             
 @app.route('/video_feed')
 def video_feed():
@@ -111,47 +120,53 @@ def stats():
 
 @app.route('/images/')
 def images():
-    return render_template('images.html')
+    camera = cv2.VideoCapture(f'{PROTOCOL}://{IP}/{EXTRA}')
+    if camera.isOpened():
+        ret, frame =camera.read()
+        #detection_server.img = frame
+        #time.sleep(2)
+        #labels = detection_server.data
+    else:
+        labels = ()
+    return render_template('images.html',labels=labels)
 
 @app.route('/recipes/', methods=['GET', 'POST'])
 def recipes():
    
-    item_1 = ''
-    item_2 = ''
     table = ()
     
     data = Recipes.query.all() 
 
-    items1, items2 = set(), set()
+    items1, items2 = set(' '), set(' ')
     for item in data:
-            items1.add(item.jobTitle)
-            items2.add(item.officeCode)  
+            items1.add(item.tipoPlato)
+            items2.add(item.producto)  
     
     items1, items2 = list(items1), list(items2)
     items1.sort(), items2.sort()        
-
-    item_1, item_2 = '', ''
-    
-    cat_1 = 'Job Title'
-    cat_2 = 'Office Code'
-       
+           
     if request.method=='POST':
         
         item_1 = request.form['item_1']
         item_2 = request.form['item_2']     
         
-        data = Recipes.query.filter_by(jobTitle=item_1).filter_by(officeCode=item_2).all()
-        labels = ['Employee Number', 'Last Name', 'First Name', 'Extension', 'Email', 'Office Code', 
-                  'Reports To', 'Job Title']
+        if not  item_1:
+            data = Recipes.query.filter_by(producto=item_2).all()
+        elif not item_2:
+            data = Recipes.query.filter_by(tipoPlato=item_1).all()
+        else:
+            data = Recipes.query.filter_by(tipoPlato=item_1).filter_by(producto=item_2).all()
+            
+        labels = ['Nombre', 'Producto', 'Tipo de Plato', 'Categoria', 'Tipo de Cocción', 
+                  'Ingredientes', 'Personas']
         table = []
-        table.append(labels)      
+        table.append(labels)    
         for row in data:   
-            table.append([row.employeeNumber, row.lastName, row.firstName, 
-                                    row.extension, row.email, row.officeCode, 
-                                    row.reportsTo, row.jobTitle])
-                    
-    return render_template('recepies.html', items1=items1, items2=items2, cat_1=cat_1, cat_2=cat_2, 
-                           item_1=item_1, item_2=item_2, table=table)
- 
+            table.append([row.nombre, row.producto, row.tipoPlato, 
+                                    row.categoria, row.tipoCoccion, row.ingredientes, 
+                                    row.personas, row.link])
+                      
+    return render_template('recepies.html', items1=items1, items2=items2,table=table)
+
 if __name__ == '__main__':
     app.run(debug=True)

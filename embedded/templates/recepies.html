@@ -3,28 +3,21 @@
 {%block content%}
 
 <div class='my-columns my-columns-3'>
-    <h3 class='column'> Select from <b>{{category_1}}</b></h3>
-    {%if cat_2%}
-    <h3 class='column'> Select from <b>{{category_2}}</b></h3>
-    {%endif%}
+    <h3 class='column'> Select from <b> Dish Type </b></h3>
+    
+    <h3 class='column'> Select from <b> Product</b></h3>  
 </div>
     <form action="" method ="post" class='my-columns my-columns-3'>
-        {% if cat_1%}
         <select name="item_1" class='column'> 
-            <option value={{item_1}} style='display:none'>{{item_1}}</option>
             {% for item in items1%}
             <option value={{item}}>{{item}}</option>
             {%endfor%}
         </select>
-        {%endif%}
-        {%if cat_2%}
         <select name="item_2" class='column'> 
-            <option value={{item_2}} style='display:none'>{{item_2}}</option>
             {% for item in items2%}
             <option value={{item}}>{{item}}</option>
             {%endfor%}
-        </select>  
-        {%endif%}   
+        </select>   
         <input type="submit" class='column'>   
     </form>
 {%if table%}
@@ -41,7 +34,14 @@
                 {%for row in table[1:]%}
                 <tr> 
                     {%for cell in row%}
-                        <td> {{cell}}</td>
+                        {%if cell == row[-1]%}
+                            {%  continue%}
+                        {%endif%}
+                        {%if cell == row[0]%}
+                            <td> <a href={{row[-1]}} target="_blank">{{cell}}</a></td>    
+                        {%else%}
+                            <td> {{cell}}</td>
+                        {%endif%}
                     {%endfor%}
                 </tr>
                 {%endfor%}

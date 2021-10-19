@@ -46,6 +46,20 @@ html {
   font-weight: bold;
   color: #009879;
 }
+
+  .ingredients{
+    position: relative;
+    left: 100px;
+  }
+  .button{
+    width: 80px;
+    height: 35px;
+    bottom: 100px;
+  }
+  .inside-column {
+    display: flex;
+    align-items: baseline;
+  } 
   .my-columns {
     display: flex;
     margin-top: 10px;
