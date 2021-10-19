@@ -1,7 +1,7 @@
 # Cocina-Inteligente
 Proyecto Embebidos
 
-Objetivos:
+Objetivos: Detectar alimentos
 
 Alcance:
 
