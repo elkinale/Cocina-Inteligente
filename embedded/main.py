@@ -24,7 +24,7 @@ EXTRA = 'cam-hi.jpg'
 # The data base is created
 db = SQLAlchemy(app)
 
-#A class is created asociated to a databseS, the variables are the columns of the table
+#A class is created asociated to a databse, the variables are the columns of the table
 class Recipes(db.Model):   
     
     __tablename__ = 'recipes'
